@@ -10,7 +10,10 @@ AudioPlayer song;
 AudioMetaData metadata;
 FFT fft;
 
-String songFile = "song3.mp3";
+int framerate = 144;// set your framerate here
+  //frame timings should be off, if the framerate is not set to your monitor's refresh rate.
+  //I happen to have a 144hz monitor, hence the framerate choice.
+String songFile = "song.mp3"; //songs and fonts should be inside the data folder.
 String fontName = "SFReg.otf";
 int fontSize = 12;
 float volume = .5;
@@ -33,14 +36,13 @@ float specLow = 0.03; // 3%
 float specMid = 0.125;  // 12.5%
 float specHi = 0.20;   // 20%
 
+//The diff variable is used to guarantee a color change when comparing the new rgb values with the old ones.
 float diff = 25;
 
 void setup()
 {
   fullScreen(P3D);
-  frameRate(144);// set your framerate here
-  //frame timings should be off if the framerate is not set to your monitors refresh rate.
-  //I happen to have a 144hz monitor, hence the framerate choice.
+  frameRate(framerate);
   
   minim = new Minim(this);
 
@@ -62,54 +64,51 @@ void draw()
   drawMetadata();
   keyBinds();
   stroke(255);
-  //for(int i = 0; i < song.bufferSize() - 1; i++){ 
-  //  line(i, 50 + song.left.get(i)*50, i+1, 50 + song.left.get(i+1)*50); 
-  //  line(i, 150 + song.right.get(i)*50, i+1, 150 + song.right.get(i+1)*50); 
-  //}
+
   calculateColors();
   SpecAnalyzer();
   
 }
 
-void SpecAnalyzer(){
+void SpecAnalyzer(){ //Function responsible for creating the black hole.
   fill(0,50);  
   noStroke();
   rect(0, 0, width, height);
   translate(width/2, height/2);
  
   for (int i = 0; i < song.bufferSize() - 1; i++) {
- 
     float angle = sin(i+circ1)* 200;
     float angle2 = cos(i+circ1)/cos(i+circ2)* 100;
- 
+     
     float x = sin(radians(i))*(angle*2);
     float y = cos(radians(i))*(angle2/4);
     
     float x2 = sin(radians(i))*(angle2);
     float y2 = tan(radians(i))*(angle2*15);
- 
+     
     float x3 = sin(radians(i))*(200/angle*600);
     float y3 = cos(radians(i))*(200/angle*600);
     
     float x4 = sin(radians(i))*(angle2/4);
     float y4 = cos(radians(i))*(angle2/4);
      
-    
+    //draw the acretion disc
     fill (songR,songG,songB, 40);
     rect(x, y, song.left.get(i)*10, song.left.get(i)*10);
-    
-    fill (songR,songG,songB, 40);
-    ellipse(x2, y2, song.left.get(i)*10, song.left.get(i)*10);
- 
-    fill ( #ffffff, 60);
-    ellipse(x3, y3, song.left.get(i)*20, song.left.get(i)*10);
- 
     fill (songR,songG,songB, 40);
     ellipse(x, y, song.right.get(i)*10, song.left.get(i)*30);
-
+    
+    ////draw the particle jet
+    fill (songR,songG,songB, 40);
+    ellipse(x2, y2, song.left.get(i)*10, song.left.get(i)*10);
+     
+    //draw the outside waves
+    fill ( #ffffff, 60);
+    ellipse(x3, y3, song.left.get(i)*20, song.left.get(i)*10);
     fill( #ffffff , 70);
     rect(x3, y3, song.right.get(i)*10, song.right.get(i)*20);
     
+    //draw the event horizon / singularity
     fill (songR,songG,songB, 40);
     rect(x4, y4, song.left.get(i)*10, song.left.get(i)*10);
   }
@@ -131,7 +130,7 @@ void drawMetadata(){
 }
 
 void keyBinds(){
-  if(mousePressed){
+  if(mousePressed){//Toggles showing the metadata. (This is a bit janky and I don't know how to fix it)
     if(showMeta)
       showMeta = !showMeta;
     else 
